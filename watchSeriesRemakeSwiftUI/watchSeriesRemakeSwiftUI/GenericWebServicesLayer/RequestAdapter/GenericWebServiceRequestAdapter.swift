@@ -11,11 +11,23 @@ import Combine
 
 final class GenericWebServiceRequestAdapter: GenericWebServiceRequestAdaptable {
 
+    // MARK: - PROPERTIES
+    private let constants = GenericWebServiceRequestAdapterConstants()
+
+    // MARK: - ERROR
+    enum InternalError: Error {
+        case invalidUrl
+        case invalidData
+    }
+
     // MARK: - METHODS
     func fetch<ParametersType>(request: GenericWebServiceRequestable,
-                               parameters: ParametersType) -> AnyPublisher<DataResponse<Data, AFError>, Never>? where ParametersType : Encodable {
+                               parameters: ParametersType) -> AnyPublisher<Data, Error>
+                               where ParametersType : Encodable {
         guard let requestUrl = getUrlForRequest(request: request) else {
-            return nil
+            return Fail(outputType: Data.self,
+                        failure: InternalError.invalidUrl)
+            .eraseToAnyPublisher()
         }
         AF.sessionConfiguration.timeoutIntervalForRequest = request.timeOut
         return AF.request(requestUrl,
@@ -23,10 +35,21 @@ final class GenericWebServiceRequestAdapter: GenericWebServiceRequestAdaptable {
                           parameters: parameters,
                           encoder: getParameterEncoder(request: request),
                           headers: request.headers)
-        .validate(statusCode: 200..<300)
-        .validate(contentType: ["application/json"])
+        .validate(statusCode: self.constants.successStatusRange)
+        .validate(contentType: self.constants.contentTypeValidation)
         .publishData()
+        .tryMap(mapResponseData(alamofireResponse:))
         .eraseToAnyPublisher()
+    }
+
+    // MARK: - MAP
+    private func mapResponseData(alamofireResponse: (DataResponse<Data, AFError>)) throws -> Data {
+        switch alamofireResponse.result {
+        case .failure:
+            throw InternalError.invalidData
+        case .success(let data):
+            return data
+        }
     }
 
     // MARK: - OWN METHODS

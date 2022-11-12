@@ -20,32 +20,25 @@ struct SeriesPreviewItemView: View {
 
     // MARK: - VIEW
     var body: some View {
-        ZStack {
-            AsyncImageCache(urlString: item.image.medium, cachePolicy: .returnCacheDataElseLoad) { phase in
-                switch phase {
-                case .empty:
-                    ProgressView()
-                case .success(let image):
-                    image
-                        .resizable()
-                case .failure:
-                    Text(item.name)
-                }
+        AsyncImageCache(urlString: item.image.medium,
+                        cachePolicy: .returnCacheDataElseLoad) { phase in
+            switch phase {
+            case .empty:
+                SkeletonViewBase()
+            case .success(let image):
+                image
+                    .resizable()
+            case .failure:
+                Text(item.name)
             }
         }
-        .frame(height: constants.frameHeightDefault)
-        .background(Color.principalBackgroundColor)
+        .frame(maxWidth: .infinity)
+        .background(Color.secondaryBackgroundColor)
+        .clipShape(RoundedRectangle(cornerRadius: constants.cornerRadiusForView))
     }
 
 }
 
-// MARK: - CONSTANTS CLASS
-fileprivate struct SeriesPreviewItemViewConstants {
-
-    /// Default height for the item
-    let frameHeightDefault: CGFloat = 250
-
-}
 
 struct SeriesPreviewItemView_Previews: PreviewProvider {
 

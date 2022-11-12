@@ -29,9 +29,14 @@ extension SeriesPrincipalLandingView {
             publisherForGetSeries
                 .map { itemsDBO in
                     itemsDBO.map({ SerieInformationItemDTO(from: $0) }) }
-                .sink { [weak self] _ in
-                    self?.isLoadingContent = false
-                    self?.isShowingLoadingContentErrorView = true
+                .sink { [weak self] receivedResponse in
+                    switch receivedResponse {
+                    case .finished:
+                        break
+                    case.failure:
+                        self?.isLoadingContent = false
+                        self?.isShowingLoadingContentErrorView = true
+                    }
                 } receiveValue: { [weak self] seriesItemsDTO in
                     self?.isLoadingContent = false
                     self?.isShowingLoadingContentErrorView = false

@@ -15,12 +15,8 @@ final class GenericWebServiceManager<SuccessResponse: Codable,
     private let requestAdapter: GenericWebServiceRequestAdaptable
     private let request: GenericWebServiceRequestable
     private let jsonDecoder = JSONDecoder()
-    private let subjectPublisherForResult = PassthroughSubject<SuccessResponse, GenericWebServiceGenericError<ErrorResponse>>()
     private var cancellables = Set<AnyCancellable>()
 
-    enum InternalError: Error {
-        case canNotBuildAdapter
-    }
 
     // MARK: - INIT
     init(requestAdapter: GenericWebServiceRequestAdaptable = GenericWebServiceRequestAdapter(),
@@ -32,29 +28,33 @@ final class GenericWebServiceManager<SuccessResponse: Codable,
 
     // MARK: - METHODS
     func fetchModel<ParametersType: Codable>(parameters: ParametersType) -> AnyPublisher<SuccessResponse, GenericWebServiceGenericError<ErrorResponse>> {
-        guard let publisher = requestAdapter.fetch(request: request, parameters: parameters) else {
-            return Fail(error: GenericWebServiceGenericError<ErrorResponse>.unknow(error: InternalError.canNotBuildAdapter)).eraseToAnyPublisher()
-        }
-        publisher.sink { [weak self] response in
-            guard let self = self else { return }
-            switch response.result {
-            case .failure(let error):
-                self.subjectPublisherForResult.send(completion: .failure(GenericWebServiceGenericError<ErrorResponse>.serviceFailure(statusCode: error.responseCode ?? .zero)))
-            case .success(let data):
-                do {
-                    let responseModel = try JSONDecoder().decode(SuccessResponse.self, from: data)
-                    self.subjectPublisherForResult.send(responseModel)
-                } catch {
-                    if let errorModel = try? self.jsonDecoder.decode(ErrorResponse.self, from: data) {
-                        self.subjectPublisherForResult.send(completion: .failure(GenericWebServiceGenericError<ErrorResponse>.modelError(model: errorModel)))
-                    } else {
-                        self.subjectPublisherForResult.send(completion: .failure(GenericWebServiceGenericError<ErrorResponse>.decodeError(error: error)))
-                    }
-                }
+        let publisher = requestAdapter.fetch(request: request, parameters: parameters)
+        return publisher
+            .tryMap({ try self.tryMapToReponse(data: $0) })
+            .mapError({ self.mapError(error: $0) })
+            .eraseToAnyPublisher()
+    }
+
+    // MARK: - OWN METHODS
+    func tryMapToReponse(data: Data) throws -> SuccessResponse {
+        do {
+            let responseModel = try jsonDecoder.decode(SuccessResponse.self, from: data)
+            return responseModel
+        } catch {
+            if let errorModel = try? jsonDecoder.decode(ErrorResponse.self,
+                                                        from: data) {
+                throw GenericWebServiceGenericError<ErrorResponse>.modelError(model: errorModel)
+            } else {
+                throw GenericWebServiceGenericError<ErrorResponse>.decodeError(error: error)
             }
         }
-        .store(in: &cancellables)
-        return subjectPublisherForResult.eraseToAnyPublisher()
+    }
+
+    func mapError(error: Error) -> GenericWebServiceGenericError<ErrorResponse> {
+        guard let mappedError = error as? GenericWebServiceGenericError<ErrorResponse> else {
+            return .unknow(error: error)
+        }
+        return mappedError
     }
 
 }
