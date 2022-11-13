@@ -14,5 +14,3 @@ enum GenericWebServiceGenericError<ErrorModelType: Codable>: Error {
     case decodeError(error: Error)
     case modelError(model: ErrorModelType)
 }
-
-

@@ -25,15 +25,16 @@ struct SeriesPreviewItemView: View {
             switch phase {
             case .empty:
                 SkeletonViewBase()
+                    .frame(maxHeight: .infinity)
             case .success(let image):
                 image
                     .resizable()
             case .failure:
                 Text(item.name)
+                    .foregroundColor(.textPrimaryColor)
+                    .multilineTextAlignment(.center)
             }
         }
-        .frame(maxWidth: .infinity)
-        .background(Color.secondaryBackgroundColor)
         .clipShape(RoundedRectangle(cornerRadius: constants.cornerRadiusForView))
     }
 

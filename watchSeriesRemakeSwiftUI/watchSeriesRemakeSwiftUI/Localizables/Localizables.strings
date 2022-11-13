@@ -1,0 +1,10 @@
+/* 
+  Localizables.strings
+  watchSeriesRemakeSwiftUI
+
+  Created by Ricardo Desiderio on 13/11/22.
+  
+*/
+
+// MARK: - PRINCIPAL LANDING
+"series_principal_landing_view_navigation_title" = "Series";

@@ -9,43 +9,68 @@ import SwiftUI
 
 struct SeriesPrincipalLandingView: View {
 
+    // MARK: - VIEW MODEL
+    @StateObject private var viewModel: ViewModel = ViewModel()
+
     // MARK: - PROPERTIES
-    @StateObject var viewModel: ViewModel = ViewModel()
+    private let constants = SeriesPrincipalLandingViewConstants()
+    private typealias Localizables = SeriesPrincipalLandingLocalizables
 
     // MARK: - VIEW
     var body: some View {
         NavigationView {
             NativeNavigationBarView() {
-                GeometryReader { geometryProxy in
-                    VStack {
-                        if viewModel.isLoadingContent {
-                            ProgressView()
-                        } else if viewModel.isShowingLoadingContentErrorView {
-                            Text("Error Getting The Array!")
-                        } else {
-                            let columns = [
-                                GridItem(.flexible()),
-                                GridItem(.flexible()),
-                                GridItem(.flexible())
-                            ]
-                            ScrollView {
-                                LazyVGrid(columns: columns, spacing: 5) {
-                                    ForEach(viewModel.series) { serieItem in
-                                        let heightForItem = SeriesPreviewItemViewConstants().frameHeightFactor * geometryProxy.size.height
-                                        SeriesPreviewItemView(item: serieItem)
-                                            .frame(height: heightForItem )
-                                    }
-                                }
-                            }
-                            .background(Color.principalBackgroundColor.edgesIgnoringSafeArea(.bottom))
-                        }
+                VStack {
+                    if viewModel.isLoadingInitialContent {
+                        loadingView
+                    } else if viewModel.isShowingLoadingContentErrorView {
+                        errorView
+                    } else {
+                        listOfListsView
                     }
                 }
+                .background(
+                    Color.principalBackgroundColor
+                        .edgesIgnoringSafeArea(.bottom))
             }
-            .customNavigationBarTitle("Series")
+            .customNavigationBarTitle(Localizables.navigationTitle.localize)
         }
         .onAppear {
-            viewModel.fetchSeries()
+            viewModel.fetchInitialSeriesPage()
+        }
+    }
+
+    // MARK: - COMPONENTS
+    var loadingView: some View {
+        ProgressView()
+    }
+
+    var errorView: some View {
+        Text("Error!")
+    }
+
+    var listOfListsView: some View {
+        GeometryReader { geometryProxy in
+            ScrollView() {
+                let columnsForVertical = [GridItem(.flexible()) ]
+                LazyVGrid(columns: columnsForVertical,
+                          spacing: constants.vGridSpacing) {
+                    ForEach(viewModel.seriesSections) { section in
+                        let height = geometryProxy.size.height
+                        let width = geometryProxy.size.width
+                        SeriesPreviewHorizontalSectionView(section: section,
+                                                           totalHeigth: height,
+                                                           totalWidth: width)
+                    }
+                    Color.clear
+                        .onAppear {
+                            viewModel.fetchNextSeriesPage()
+                        }
+                }
+                if viewModel.isLoadingTheNextPageOfContent {
+                    ProgressView()
+                }
+            }
         }
     }
 

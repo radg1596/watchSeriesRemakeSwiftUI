@@ -11,7 +11,8 @@ import Foundation
 struct SeriesPreviewItemViewConstants {
 
     /// Default height for the item
-    let frameHeightFactor: CGFloat = 0.3
+    let frameHeightFactor: CGFloat = 0.25
+    let frameWidthFactor: CGFloat = 0.15
     let cornerRadiusForView: CGFloat = 5.0
 
 }

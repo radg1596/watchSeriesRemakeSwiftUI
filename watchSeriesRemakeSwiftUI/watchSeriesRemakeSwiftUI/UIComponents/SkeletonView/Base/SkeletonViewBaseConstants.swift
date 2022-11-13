@@ -13,8 +13,8 @@ struct SkeletonViewBaseConstants {
     let cornerRadiusFactor: CGFloat = 0.1
 
     // MARK: - ANIMATIONS
-    let animationTime: TimeInterval = 0.4
-    let endPointAnimationX: CGFloat = 1.0
+    let animationTime: TimeInterval = 0.65
+    let endPointAnimationX: CGFloat = 0.99
 
     // MARK: - PREVIEW
     let previewFrameSize: CGFloat = 250

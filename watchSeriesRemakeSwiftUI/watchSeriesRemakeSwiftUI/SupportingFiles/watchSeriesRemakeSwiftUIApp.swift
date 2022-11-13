@@ -24,8 +24,8 @@ struct watchSeriesRemakeSwiftUIApp: App {
 
     // MARK: - OWN METHODS
     private func setCacheSizeForURLSession() {
-        URLCache.shared.memoryCapacity = 250 * 1024 * 1024
-        URLCache.shared.diskCapacity = 1024 * 1024 * 1024
+        URLCache.shared.memoryCapacity = AppGeneralConstants.memoryCacheSize
+        URLCache.shared.diskCapacity = AppGeneralConstants.diskCacheSize
     }
 
 }
