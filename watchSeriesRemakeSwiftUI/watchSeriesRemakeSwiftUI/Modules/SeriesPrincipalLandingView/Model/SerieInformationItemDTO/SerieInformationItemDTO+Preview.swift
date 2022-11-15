@@ -16,7 +16,8 @@ extension SerieInformationItemDTO {
         return SerieInformationItemDTO(id: 73,
                                        name: "The Walking Dead",
                                        url: "https://www.tvmaze.com/shows/73/the-walking-dead",
-                                       image: imageDTO)
+                                       image: imageDTO,
+                                       genres: [.horror, .scienceFiction])
     }
 
 }

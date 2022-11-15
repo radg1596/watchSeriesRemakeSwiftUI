@@ -12,7 +12,8 @@ class GetAllSeriesServiceResponseItem: Codable {
     let id: Int
     let name: String
     let url: String
-    let image: GetAllSeriesServiceResponseItemImage
+    let image: GetAllSeriesServiceResponseItemImage?
+    let genres: [String]
 
 }
 

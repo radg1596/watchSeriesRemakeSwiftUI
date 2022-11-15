@@ -8,4 +8,5 @@
 import Foundation
 
 final class GenericWebServiceGenericErrorModel: Codable {
+    let message: String
 }

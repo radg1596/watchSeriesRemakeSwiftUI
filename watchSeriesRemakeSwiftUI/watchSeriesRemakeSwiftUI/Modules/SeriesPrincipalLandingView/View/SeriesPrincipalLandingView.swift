@@ -68,7 +68,10 @@ struct SeriesPrincipalLandingView: View {
                         }
                 }
                 if viewModel.isLoadingTheNextPageOfContent {
-                    ProgressView()
+                    VStack {
+                        ProgressView()
+                            .foregroundColor(.textPrimaryColor)
+                    }
                 }
             }
         }

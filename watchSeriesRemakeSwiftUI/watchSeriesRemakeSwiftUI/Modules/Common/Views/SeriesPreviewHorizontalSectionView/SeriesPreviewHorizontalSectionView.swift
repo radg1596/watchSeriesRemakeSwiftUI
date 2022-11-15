@@ -40,7 +40,14 @@ struct SeriesPreviewHorizontalSectionView: View {
                 }
             }
         } header: {
-            Text(section.name)
+            HStack {
+                Text(section.name)
+                    .font(.title2)
+                    .foregroundColor(.textPrimaryColor)
+                    .multilineTextAlignment(.leading)
+                Spacer()
+            }
+            .padding(.leading)
         }
     }
 

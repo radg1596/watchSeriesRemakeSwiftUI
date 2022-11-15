@@ -14,13 +14,18 @@ struct AsyncImageCache<Content: View>: View {
     @State private var currentContentPhase: AsyncImageCachePhase = .empty
 
     // MARK: - PROPERTIES
-    private let urlString: String
+    private let urlString: String?
     private let cachePolicy: NSURLRequest.CachePolicy
     private var imageDownloader: ImageRemoteDataSourceProtocol
     private var content: (AsyncImageCachePhase) -> Content
 
+    // MARK: - ERROR
+    enum InternalError: Error {
+        case nilUrl
+    }
+
     // MARK: - INIT
-    init(urlString: String,
+    init(urlString: String?,
          imageDownloader: ImageRemoteDataSourceProtocol = ImageDownloaderManager(),
          cachePolicy: NSURLRequest.CachePolicy,
          @ViewBuilder content: @escaping  (AsyncImageCachePhase) -> Content) {
@@ -57,6 +62,10 @@ struct AsyncImageCache<Content: View>: View {
 
     // MARK: - OWN METHODS
     private func onAppearExecute() {
+        guard let urlString = urlString else {
+            currentContentPhase = .failure(error: InternalError.nilUrl)
+            return
+        }
         imageDownloader.requestToFetchImage(urlString, cachePolicy: cachePolicy)
             .sink { result in
                 switch result {

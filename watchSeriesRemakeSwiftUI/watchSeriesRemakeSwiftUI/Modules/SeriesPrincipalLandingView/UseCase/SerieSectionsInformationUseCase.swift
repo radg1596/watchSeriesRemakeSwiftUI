@@ -8,7 +8,7 @@
 import Combine
 import SwiftUI
 
-class SerieSectionsInformationUseCase {
+class SerieSectionsInformationUseCase: SerieSectionsInformationDataSource {
 
     // MARK: - PROPERTIES
     private let requestObjectDTO = SeriesInformationRequestDTO()
@@ -27,12 +27,12 @@ class SerieSectionsInformationUseCase {
     }
 
     // MARK: - METHODS
-    func requestToFetchInitialSeriesPage() -> AnyPublisher<[SerieInformationSectionDTO], Error> {
+    func requestToFetchInitialData() -> AnyPublisher<[SerieInformationSectionDTO], Error> {
         let parameters = GetAllSeriesParameters(page: "\(requestObjectDTO.currentPage)")
         let publisherForGetSeries = webServiceForGetSeries.fetchModel(parameters: parameters)
         return publisherForGetSeries
-            .map(map(dboResponse:))
-            .mapError({$0 as Error})
+            .map({ self.map(dboResponse: $0) })
+            .mapError({ return $0 as Error })
             .eraseToAnyPublisher()
     }
 
@@ -41,7 +41,7 @@ class SerieSectionsInformationUseCase {
         let parameters = GetAllSeriesParameters(page: "\(requestObjectDTO.currentPage)")
         let publisherForGetSeries = webServiceForGetSeries.fetchModel(parameters: parameters)
         return publisherForGetSeries
-            .map(map(dboResponse:))
+            .map({ self.map(dboResponse: $0) })
             .mapError({ [weak self] someError in
                 self?.requestObjectDTO.currentPage -= .one
                 return someError as Error
@@ -51,20 +51,40 @@ class SerieSectionsInformationUseCase {
 
     // MARK: - OWN METHODS
     func map(dboResponse: [GetAllSeriesServiceResponseItem]) -> [SerieInformationSectionDTO] {
-        var sectionsDTO: [SerieInformationSectionDTO] = []
-        let dboSections = convertToSectionsDBO(inputResponse: dboResponse)
-        for sectionDbo in dboSections {
-            let newItemsDTO = sectionDbo.map({SerieInformationItemDTO(from: $0)})
-            let newSectionDTO = SerieInformationSectionDTO(name: "SECTION",
-                                                           items: newItemsDTO)
-            sectionsDTO.append(newSectionDTO)
+        var sectionsDTO = [SerieInformationSectionDTO]()
+        for (index, section) in dboResponse.chunked(into: 20).enumerated() {
+            let itemsForSection = section.map({SerieInformationItemDTO(from: $0)})
+            let nameForSection = "Página \(requestObjectDTO.currentPage + .one) - (Sección. \(index + .one))"
+            let sectionDTO = SerieInformationSectionDTO(name: nameForSection,
+                                                        items: itemsForSection)
+            sectionsDTO.append(sectionDTO)
         }
         return sectionsDTO
     }
 
-    private func convertToSectionsDBO(inputResponse: [GetAllSeriesServiceResponseItem]) -> [[GetAllSeriesServiceResponseItem]] {
-        return inputResponse.chunked(into: 20)
-    }
+//    private func convertToSectionsDBO(inputResponse: [GetAllSeriesServiceResponseItem],
+//                                      currentSections: [SerieInformationSectionDTO]) -> [String : [SerieInformationItemDTO]] {
+//        var dictionaryOfSections = mapCurrentSectionsToDictionary(currentSections: currentSections)
+//        for itemDbo in inputResponse {
+//            guard let genreOfItem = itemDbo.genres.first else { continue }
+//            if dictionaryOfSections[genreOfItem] != nil {
+//                dictionaryOfSections[genreOfItem]?.append(SerieInformationItemDTO(from: itemDbo))
+//            } else {
+//                dictionaryOfSections[genreOfItem] = [SerieInformationItemDTO(from: itemDbo)]
+//            }
+//        }
+//        return dictionaryOfSections
+//    }
+//
+//    private func mapCurrentSectionsToDictionary(currentSections: [SerieInformationSectionDTO]) -> [String: [SerieInformationItemDTO]] {
+//        var finalDictionary = [String: [SerieInformationItemDTO]]()
+//        for section in currentSections {
+//            if finalDictionary[section.name] == nil {
+//                finalDictionary[section.name] = section.items
+//            }
+//        }
+//        return finalDictionary
+//    }
 
 
 }

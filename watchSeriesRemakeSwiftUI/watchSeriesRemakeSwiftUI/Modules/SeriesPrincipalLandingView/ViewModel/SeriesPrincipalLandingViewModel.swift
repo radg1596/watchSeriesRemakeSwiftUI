@@ -13,7 +13,7 @@ extension SeriesPrincipalLandingView {
     @MainActor class ViewModel: ObservableObject {
 
         // MARK: - OWN PROPERTIES
-        private let seriesDataSource = SerieSectionsInformationUseCase()
+        private let seriesDataSource: SerieSectionsInformationDataSource
         private var cancelablesItems = Set<AnyCancellable>()
 
         // MARK: - PROPERTIES FOR PUBLISH
@@ -22,10 +22,15 @@ extension SeriesPrincipalLandingView {
         @Published private(set) var isLoadingInitialContent: Bool = false
         @Published private(set) var isLoadingTheNextPageOfContent: Bool = false
     
+        // MARK: - INIT
+        init(seriesDataSource: SerieSectionsInformationDataSource = SerieSectionsInformationUseCase()) {
+            self.seriesDataSource = seriesDataSource
+        }
+    
         // MARK: - METHODS
         func fetchInitialSeriesPage() {
             isLoadingInitialContent = true
-            seriesDataSource.requestToFetchInitialSeriesPage()
+            seriesDataSource.requestToFetchInitialData()
                 .sink { [weak self] completion in
                     self?.isLoadingInitialContent = false
                     switch completion {

@@ -9,11 +9,11 @@ import Foundation
 
 final class SerieInformationItemImagesDTO {
 
-    let medium: String
-    let original: String
+    let medium: String?
+    let original: String?
 
     // MARK: - INIT
-    init(medium: String, original: String) {
+    init(medium: String?, original: String?) {
         self.medium = medium
         self.original = original
     }
