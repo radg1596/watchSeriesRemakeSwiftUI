@@ -29,12 +29,14 @@ final class GenericWebServiceRequestAdapter: GenericWebServiceRequestAdaptable {
                         failure: InternalError.invalidUrl)
             .eraseToAnyPublisher()
         }
-        AF.sessionConfiguration.timeoutIntervalForRequest = request.timeOut
         return AF.request(requestUrl,
                           method: request.method,
                           parameters: parameters,
                           encoder: getParameterEncoder(request: request),
-                          headers: request.headers)
+                          headers: request.headers,
+                          requestModifier: { request in
+            request.cachePolicy = .reloadIgnoringCacheData
+        })
         .validate(statusCode: self.constants.successStatusRange)
         .validate(contentType: self.constants.contentTypeValidation)
         .publishData()

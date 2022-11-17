@@ -29,11 +29,19 @@ struct SeriesPrincipalLandingView: View {
                         listOfListsView
                     }
                 }
+                .showNoInternetConnection(
+                    isPresented: $viewModel.isShowingNoInternetConnectionModal,
+                    retryCompletion: {
+                        self.viewModel.handleErrorRetryAction()
+                    })
                 .background(
                     Color.principalBackgroundColor
                         .edgesIgnoringSafeArea(.bottom))
             }
             .customNavigationBarTitle(Localizables.navigationTitle.localize)
+            .customNavigationBarLeftBarButton(
+                .image(type:
+                        .customImage(image: Image("seriesIcon"))))
         }
         .onAppear {
             viewModel.fetchInitialSeriesPage()
@@ -42,11 +50,18 @@ struct SeriesPrincipalLandingView: View {
 
     // MARK: - COMPONENTS
     var loadingView: some View {
-        ProgressView()
+        SeriesPrincipalLandingLoadingView()
     }
 
     var errorView: some View {
-        Text("Error!")
+        let errorMessage = SeriesGeneralLocalizableStrings
+            .generalErrorConnectionToServer.localize
+        let retryText = SeriesGeneralLocalizableStrings
+            .generalErrorRetryMessageButton.localize
+        return SeriesGeneralErrorAndRetryView(errorMessageText: errorMessage,
+                                              errorRetryButtonText: retryText) {
+            self.viewModel.handleErrorRetryAction()
+        }
     }
 
     var listOfListsView: some View {
@@ -68,10 +83,7 @@ struct SeriesPrincipalLandingView: View {
                         }
                 }
                 if viewModel.isLoadingTheNextPageOfContent {
-                    VStack {
-                        ProgressView()
-                            .foregroundColor(.textPrimaryColor)
-                    }
+                    LoadingNextPaginationView()
                 }
             }
         }

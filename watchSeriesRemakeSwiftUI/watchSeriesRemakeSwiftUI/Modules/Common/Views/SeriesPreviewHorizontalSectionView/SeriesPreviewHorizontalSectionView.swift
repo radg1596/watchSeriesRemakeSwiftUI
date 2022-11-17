@@ -47,7 +47,6 @@ struct SeriesPreviewHorizontalSectionView: View {
                     .multilineTextAlignment(.leading)
                 Spacer()
             }
-            .padding(.leading)
         }
     }
 

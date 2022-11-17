@@ -14,17 +14,21 @@ extension SeriesPrincipalLandingView {
 
         // MARK: - OWN PROPERTIES
         private let seriesDataSource: SerieSectionsInformationDataSource
+        private let connectionChecker: InternetConnectionCheckeable
         private var cancelablesItems = Set<AnyCancellable>()
 
         // MARK: - PROPERTIES FOR PUBLISH
         @Published private(set) var seriesSections: [SerieInformationSectionDTO] = [SerieInformationSectionDTO]()
-        @Published private(set) var isShowingLoadingContentErrorView: Bool = false
-        @Published private(set) var isLoadingInitialContent: Bool = false
-        @Published private(set) var isLoadingTheNextPageOfContent: Bool = false
+        @Published var isShowingNoInternetConnectionModal: Bool = false
+        @Published var isShowingLoadingContentErrorView: Bool = false
+        @Published var isLoadingInitialContent: Bool = true
+        @Published var isLoadingTheNextPageOfContent: Bool = false
     
         // MARK: - INIT
-        init(seriesDataSource: SerieSectionsInformationDataSource = SerieSectionsInformationUseCase()) {
+        init(seriesDataSource: SerieSectionsInformationDataSource = SerieSectionsInformationUseCase(),
+             connectionChecker: InternetConnectionCheckeable = InternetConnectionCheckerManager()) {
             self.seriesDataSource = seriesDataSource
+            self.connectionChecker = connectionChecker
         }
     
         // MARK: - METHODS
@@ -43,6 +47,19 @@ extension SeriesPrincipalLandingView {
                     self?.isLoadingInitialContent = false
                     self?.isShowingLoadingContentErrorView = false
                     self?.seriesSections.append(contentsOf: newSections)
+                }
+                .store(in: &cancelablesItems)
+        }
+    
+        func handleErrorRetryAction() {
+            connectionChecker.networkCheckerPublisher()
+                .sink { [weak self] isAvailable in
+                    guard let self = self else { return }
+                    if isAvailable {
+                        self.fetchInitialSeriesPage()
+                    } else {
+                        self.isShowingNoInternetConnectionModal = true
+                    }
                 }
                 .store(in: &cancelablesItems)
         }

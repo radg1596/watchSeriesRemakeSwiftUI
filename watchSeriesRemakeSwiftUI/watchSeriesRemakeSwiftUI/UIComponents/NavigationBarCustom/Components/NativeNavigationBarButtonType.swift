@@ -21,6 +21,8 @@ enum NativeNavigationBarButtonType {
         case .image(let type):
             type.image
                 .renderingMode(.template)
+                .resizable()
+                .scaledToFit()
         }
     }
 

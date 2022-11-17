@@ -12,6 +12,7 @@ class SerieSectionsInformationUseCase: SerieSectionsInformationDataSource {
 
     // MARK: - PROPERTIES
     private let requestObjectDTO = SeriesInformationRequestDTO()
+    private typealias LocalizableStrings = SeriesPrincipalLandingLocalizables
 
     // MARK: - SERVICE
     private lazy var webServiceForGetSeries: GenericWebServiceManager<[GetAllSeriesServiceResponseItem],
@@ -52,39 +53,28 @@ class SerieSectionsInformationUseCase: SerieSectionsInformationDataSource {
     // MARK: - OWN METHODS
     func map(dboResponse: [GetAllSeriesServiceResponseItem]) -> [SerieInformationSectionDTO] {
         var sectionsDTO = [SerieInformationSectionDTO]()
-        for (index, section) in dboResponse.chunked(into: 20).enumerated() {
-            let itemsForSection = section.map({SerieInformationItemDTO(from: $0)})
-            let nameForSection = "Página \(requestObjectDTO.currentPage + .one) - (Sección. \(index + .one))"
-            let sectionDTO = SerieInformationSectionDTO(name: nameForSection,
-                                                        items: itemsForSection)
-            sectionsDTO.append(sectionDTO)
+        let dictionaryOfSections = convertToSectionsDBO(inputResponse: dboResponse)
+        for dictionarySection in dictionaryOfSections {
+            let sectionName = "Página \(requestObjectDTO.currentPage + .one) - \(dictionarySection.key)"
+            let newSection = SerieInformationSectionDTO(name: sectionName,
+                                                     items: dictionarySection.value)
+            sectionsDTO.append(newSection)
         }
-        return sectionsDTO
+        let sortedSectionsDTO = Array(sectionsDTO.sorted(by: { $0.name < $1.name }))
+        return sortedSectionsDTO
     }
 
-//    private func convertToSectionsDBO(inputResponse: [GetAllSeriesServiceResponseItem],
-//                                      currentSections: [SerieInformationSectionDTO]) -> [String : [SerieInformationItemDTO]] {
-//        var dictionaryOfSections = mapCurrentSectionsToDictionary(currentSections: currentSections)
-//        for itemDbo in inputResponse {
-//            guard let genreOfItem = itemDbo.genres.first else { continue }
-//            if dictionaryOfSections[genreOfItem] != nil {
-//                dictionaryOfSections[genreOfItem]?.append(SerieInformationItemDTO(from: itemDbo))
-//            } else {
-//                dictionaryOfSections[genreOfItem] = [SerieInformationItemDTO(from: itemDbo)]
-//            }
-//        }
-//        return dictionaryOfSections
-//    }
-//
-//    private func mapCurrentSectionsToDictionary(currentSections: [SerieInformationSectionDTO]) -> [String: [SerieInformationItemDTO]] {
-//        var finalDictionary = [String: [SerieInformationItemDTO]]()
-//        for section in currentSections {
-//            if finalDictionary[section.name] == nil {
-//                finalDictionary[section.name] = section.items
-//            }
-//        }
-//        return finalDictionary
-//    }
-
+    private func convertToSectionsDBO(inputResponse: [GetAllSeriesServiceResponseItem]) -> [String : [SerieInformationItemDTO]] {
+        var dictionaryOfSections = [String: [SerieInformationItemDTO]]()
+        for itemDbo in inputResponse {
+            guard let genreOfItem = itemDbo.genres.first else { continue }
+            if dictionaryOfSections[genreOfItem] != nil {
+                dictionaryOfSections[genreOfItem]?.append(SerieInformationItemDTO(from: itemDbo))
+            } else {
+                dictionaryOfSections[genreOfItem] = [SerieInformationItemDTO(from: itemDbo)]
+            }
+        }
+        return dictionaryOfSections
+    }
 
 }

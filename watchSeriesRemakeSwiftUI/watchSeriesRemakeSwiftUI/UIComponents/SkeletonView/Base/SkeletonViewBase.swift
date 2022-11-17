@@ -20,8 +20,8 @@ struct SkeletonViewBase: View {
     // MARK: - GRADIENT
     private var gradienFillView: LinearGradient {
         LinearGradient(colors: colorsOfGradient,
-                                      startPoint: startPointOfGradient,
-                                      endPoint: endPointOfGradient)
+                       startPoint: startPointOfGradient,
+                       endPoint: endPointOfGradient)
     }
 
     // MARK: - INIT
@@ -36,21 +36,19 @@ struct SkeletonViewBase: View {
 
     // MARK: - BODY
     var body: some View {
-        GeometryReader { geometryProxy in
-            VStack {
-                let availableWidth = geometryProxy.size.width
-                let cornerRadius = availableWidth * constants.cornerRadiusFactor
-                RoundedRectangle(cornerRadius: cornerRadius)
-                    .fill(gradienFillView)
-            }
+        VStack {
+            Rectangle()
+                .fill(gradienFillView)
+                .clipped()
         }
         .onAppear {
             let animationForSkeleton = Animation
-                .easeInOut(duration: constants.animationTime)
+                .easeIn(duration: constants.animationTime)
                 .repeatForever()
-            withAnimation(animationForSkeleton) {
-                startPointOfGradient = UnitPoint(x: constants.endPointAnimationX,
-                                                 y: .zero)
+            DispatchQueue.main.async {
+                withAnimation(animationForSkeleton) {
+                    self.startPointOfGradient = UnitPoint(x: self.constants.endPointAnimationX, y: .zero)
+                }
             }
         }
     }
