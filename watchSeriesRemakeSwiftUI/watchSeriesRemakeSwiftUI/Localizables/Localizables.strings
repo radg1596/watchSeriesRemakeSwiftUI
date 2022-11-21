@@ -1,0 +1,29 @@
+/* 
+  Localizables.strings
+  watchSeriesRemakeSwiftUI
+
+  Created by Ricardo Desiderio on 13/11/22.
+  
+*/
+
+// MARK: - PRINCIPAL LANDING
+"series_principal_landing_view_navigation_title" = "Series";
+
+// MARK: - GENERAL
+"general_error_connection_to_server" = "No es posible conectarse con Series";
+"general_error_retry_message_button" = "Toca para reintentar";
+
+// MARK: - NO INTERNET MESSAGE
+"general_error_no_internet_available_title" = "Error de red";
+"general_error_no_internet_available_message" = "Error al conectarse a Series. Revisa la conexión de tu dispositivo.";
+
+// MARK: - BUTTONS
+"general_button_cancel_text" = "Cancelar";
+"general_button_cancel_retry" = "Reintentar";
+
+// MARK: - GENERAL TEXT
+"general_text_page_description" = "Página";
+"general_text_page_separator" = "-";
+"general_text_my_list" = "Lista";
+"general_text_play_text" = "Reproducir";
+"general_text_info_text" = "Info";
