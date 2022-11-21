@@ -12,7 +12,7 @@ class SerieSectionsInformationUseCase: SerieSectionsInformationDataSource {
 
     // MARK: - PROPERTIES
     private let requestObjectDTO = SeriesInformationRequestDTO()
-    private typealias LocalizableStrings = SeriesPrincipalLandingLocalizables
+    private typealias LocalizableStrings = SeriesGeneralLocalizableStrings
 
     // MARK: - SERVICE
     private lazy var webServiceForGetSeries: GenericWebServiceManager<[GetAllSeriesServiceResponseItem],
@@ -28,7 +28,7 @@ class SerieSectionsInformationUseCase: SerieSectionsInformationDataSource {
     }
 
     // MARK: - METHODS
-    func requestToFetchInitialData() -> AnyPublisher<[SerieInformationSectionDTO], Error> {
+    func requestToFetchInitialData() -> AnyPublisher<[SeriesLandingItemProtocol], Error> {
         let parameters = GetAllSeriesParameters(page: "\(requestObjectDTO.currentPage)")
         let publisherForGetSeries = webServiceForGetSeries.fetchModel(parameters: parameters)
         return publisherForGetSeries
@@ -37,7 +37,7 @@ class SerieSectionsInformationUseCase: SerieSectionsInformationDataSource {
             .eraseToAnyPublisher()
     }
 
-    func requestToFetchMoreSeriesPages() -> AnyPublisher<[SerieInformationSectionDTO], Error> {
+    func requestToFetchMoreSeriesPages() -> AnyPublisher<[SeriesLandingItemProtocol], Error> {
         requestObjectDTO.currentPage += .one
         let parameters = GetAllSeriesParameters(page: "\(requestObjectDTO.currentPage)")
         let publisherForGetSeries = webServiceForGetSeries.fetchModel(parameters: parameters)
@@ -51,19 +51,30 @@ class SerieSectionsInformationUseCase: SerieSectionsInformationDataSource {
     }
 
     // MARK: - OWN METHODS
-    func map(dboResponse: [GetAllSeriesServiceResponseItem]) -> [SerieInformationSectionDTO] {
-        var sectionsDTO = [SerieInformationSectionDTO]()
-        let dictionaryOfSections = convertToSectionsDBO(inputResponse: dboResponse)
+    private func map(dboResponse: [GetAllSeriesServiceResponseItem]) -> [SeriesLandingItemProtocol] {
+        var sectionsDTO = [SeriesLandingItemProtocol]()
+        var dboResponseMutable = dboResponse
+        if requestObjectDTO.currentPage == .zero {
+            let randonNumber = Int.random(in: .zero...dboResponse.count - .one)
+            let firstItemDTO = dboResponseMutable.remove(at: randonNumber)
+            sectionsDTO.append(SerieInformationMainItemDTO(from: firstItemDTO))
+        }
+        let dictionaryOfSections = convertToSectionsDBO(inputResponse: dboResponseMutable)
         for dictionarySection in dictionaryOfSections {
-            let sectionName = "Página \(requestObjectDTO.currentPage + .one) - \(dictionarySection.key)"
+            let sectionName = "\(LocalizableStrings.generalTextPageDescription.localize) \(requestObjectDTO.currentPage + .one) \(LocalizableStrings.generalTextPageSeparator.localize) \(dictionarySection.key)"
             let newSection = SerieInformationSectionDTO(name: sectionName,
                                                      items: dictionarySection.value)
             sectionsDTO.append(newSection)
         }
-        let sortedSectionsDTO = Array(sectionsDTO.sorted(by: { $0.name < $1.name }))
+        let sortedSectionsDTO = Array(sectionsDTO.sorted(by: { $0.sortString < $1.sortString }))
         return sortedSectionsDTO
     }
 
+    private func mapFirst(dboResponse: GetAllSeriesServiceResponseItem) -> SerieInformationMainItemDTO {
+        return SerieInformationMainItemDTO(from: dboResponse)
+    }
+
+    // MARK: - UTIL PARSE
     private func convertToSectionsDBO(inputResponse: [GetAllSeriesServiceResponseItem]) -> [String : [SerieInformationItemDTO]] {
         var dictionaryOfSections = [String: [SerieInformationItemDTO]]()
         for itemDbo in inputResponse {

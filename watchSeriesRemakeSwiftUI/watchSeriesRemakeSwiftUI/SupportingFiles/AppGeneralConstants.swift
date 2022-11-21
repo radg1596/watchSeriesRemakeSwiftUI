@@ -13,4 +13,7 @@ class AppGeneralConstants {
     static let memoryCacheSize: Int = 250 * 1024 * 1024
     static let diskCacheSize: Int = 1024 * 1024 * 1024
 
+    // MARK: - LOCALIZABLES
+    static let localizablesFileName = "Localizables"
+
 }

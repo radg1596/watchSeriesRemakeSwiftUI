@@ -8,6 +8,6 @@
 import Combine
 
 protocol SerieSectionsInformationDataSource {
-    func requestToFetchInitialData() -> AnyPublisher<[SerieInformationSectionDTO], Error>
-    func requestToFetchMoreSeriesPages() -> AnyPublisher<[SerieInformationSectionDTO], Error>
+    func requestToFetchInitialData() -> AnyPublisher<[SeriesLandingItemProtocol], Error>
+    func requestToFetchMoreSeriesPages() -> AnyPublisher<[SeriesLandingItemProtocol], Error>
 }

@@ -20,3 +20,10 @@
 // MARK: - BUTTONS
 "general_button_cancel_text" = "Cancelar";
 "general_button_cancel_retry" = "Reintentar";
+
+// MARK: - GENERAL TEXT
+"general_text_page_description" = "Página";
+"general_text_page_separator" = "-";
+"general_text_my_list" = "Lista";
+"general_text_play_text" = "Reproducir";
+"general_text_info_text" = "Info";

@@ -9,6 +9,6 @@ import Foundation
 
 func Localize(_ string: String) ->  String {
     return NSLocalizedString(string,
-                             tableName: "Localizables",
+                             tableName: AppGeneralConstants.localizablesFileName,
                              comment: String())
 }

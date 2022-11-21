@@ -19,7 +19,7 @@ struct SeriesPrincipalLandingView: View {
     // MARK: - VIEW
     var body: some View {
         NavigationView {
-            NativeNavigationBarView() {
+            NativeNavigationBarView(isTranslucent: true) {
                 VStack {
                     if viewModel.isLoadingInitialContent {
                         loadingView
@@ -36,12 +36,12 @@ struct SeriesPrincipalLandingView: View {
                     })
                 .background(
                     Color.principalBackgroundColor
-                        .edgesIgnoringSafeArea(.bottom))
+                        .edgesIgnoringSafeArea([.bottom, .top]))
             }
             .customNavigationBarTitle(Localizables.navigationTitle.localize)
             .customNavigationBarLeftBarButton(
                 .image(type:
-                        .customImage(image: Image("seriesIcon"))))
+                        .customImage(image: Image(constants.seriesIconName))))
         }
         .onAppear {
             viewModel.fetchInitialSeriesPage()
@@ -70,12 +70,9 @@ struct SeriesPrincipalLandingView: View {
                 let columnsForVertical = [GridItem(.flexible()) ]
                 LazyVGrid(columns: columnsForVertical,
                           spacing: constants.vGridSpacing) {
-                    ForEach(viewModel.seriesSections) { section in
-                        let height = geometryProxy.size.height
-                        let width = geometryProxy.size.width
-                        SeriesPreviewHorizontalSectionView(section: section,
-                                                           totalHeigth: height,
-                                                           totalWidth: width)
+                    ForEach(viewModel.seriesSections, id: \.id) { section in
+                        viewModel.cardsFactory.getItemFor(item: section,
+                                                          proxy: geometryProxy)
                     }
                     Color.clear
                         .onAppear {

@@ -18,6 +18,7 @@ struct AsyncImageCache<Content: View>: View {
     private let cachePolicy: NSURLRequest.CachePolicy
     private var imageDownloader: ImageRemoteDataSourceProtocol
     private var content: (AsyncImageCachePhase) -> Content
+    private var onFinishCompletion: (() -> Void)?
 
     // MARK: - ERROR
     enum InternalError: Error {
@@ -28,11 +29,13 @@ struct AsyncImageCache<Content: View>: View {
     init(urlString: String?,
          imageDownloader: ImageRemoteDataSourceProtocol = ImageDownloaderManager(),
          cachePolicy: NSURLRequest.CachePolicy,
-         @ViewBuilder content: @escaping  (AsyncImageCachePhase) -> Content) {
+         @ViewBuilder content: @escaping (AsyncImageCachePhase) -> Content,
+         onFinishCompletion: (() -> Void)? = nil) {
         self.urlString = urlString
         self.cachePolicy = cachePolicy
         self.imageDownloader = imageDownloader
         self.content = content
+        self.onFinishCompletion = onFinishCompletion
     }
 
     // MARK: - BODY
@@ -64,6 +67,7 @@ struct AsyncImageCache<Content: View>: View {
     private func onAppearExecute() {
         guard let urlString = urlString else {
             currentContentPhase = .failure(error: InternalError.nilUrl)
+            onFinishCompletion?()
             return
         }
         imageDownloader.requestToFetchImage(urlString, cachePolicy: cachePolicy)
@@ -71,11 +75,14 @@ struct AsyncImageCache<Content: View>: View {
                 switch result {
                 case .failure(let error):
                     currentContentPhase = .failure(error: error)
+                    onFinishCompletion?()
                 case .finished:
+                    onFinishCompletion?()
                     return
                 }
             } receiveValue: { image in
                 currentContentPhase = .success(image: Image(uiImage: image))
+                onFinishCompletion?()
             }
             .store(in: &ImageDownloaderManager.setOfCancelables)
     }

@@ -11,5 +11,6 @@ class SeriesPrincipalLandingViewConstants {
 
     // MARK: - UI
     let vGridSpacing: CGFloat = 5.0
+    let seriesIconName: String = "seriesIcon"
 
 }

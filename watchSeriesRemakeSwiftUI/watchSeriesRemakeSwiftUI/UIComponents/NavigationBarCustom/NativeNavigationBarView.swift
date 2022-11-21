@@ -18,10 +18,12 @@ struct NativeNavigationBarView<Content: View>: NativeNavigationBarDynamicContent
     // MARK: - INIT
     init(title: String = String(),
          backgroundColor: Color = .secondaryBackgroundColor,
+         isTranslucent: Bool = false,
          foregroundColor: Color = .textPrimaryColor,
          content: @escaping () -> Content) {
         self.data = NativeNavigationBarData(title: title,
                                             backgroundColor: backgroundColor,
+                                            isTranslucent: isTranslucent,
                                             foregroundColor: foregroundColor,
                                             leftBarButton: nil,
                                             rightBarButton: nil,
@@ -49,7 +51,8 @@ struct NativeNavigationBarView<Content: View>: NativeNavigationBarDynamicContent
         let coloredAppearance = UINavigationBarAppearance()
         coloredAppearance.configureWithOpaqueBackground()
         coloredAppearance.shadowColor = nil
-        coloredAppearance.backgroundColor = UIColor(backgroundColor)
+        let colorForBackground = data.isTranslucent ? UIColor(backgroundColor).withAlphaComponent(0.85) : UIColor(backgroundColor)
+        coloredAppearance.backgroundColor = colorForBackground
         coloredAppearance.shadowColor = .clear
         UINavigationBar.appearance().standardAppearance = coloredAppearance
         UINavigationBar.appearance().compactAppearance = coloredAppearance

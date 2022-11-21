@@ -12,6 +12,7 @@ class NativeNavigationBarData: NSObject, NativeNavigationBarDataProtocol {
     // MARK: - PROPERTIES
     var title: String
     var backgroundColor: Color
+    var isTranslucent: Bool
     var foregroundColor: Color
     var leftBarButton: NativeNavigationBarButtonType?
     var rightBarButton: NativeNavigationBarButtonType?
@@ -21,6 +22,7 @@ class NativeNavigationBarData: NSObject, NativeNavigationBarDataProtocol {
     // MARK: - INIT
     init(title: String,
          backgroundColor: Color,
+         isTranslucent: Bool,
          foregroundColor: Color,
          leftBarButton: NativeNavigationBarButtonType? = nil,
          rightBarButton: NativeNavigationBarButtonType? = nil,
@@ -28,8 +30,12 @@ class NativeNavigationBarData: NSObject, NativeNavigationBarDataProtocol {
          onRightClickCompletion: (() -> Void)? = nil) {
         self.title = title
         self.backgroundColor = backgroundColor
+        self.isTranslucent = isTranslucent
         self.foregroundColor = foregroundColor
         self.leftBarButton = leftBarButton
+        self.rightBarButton = rightBarButton
+        self.onLeftClickCompletion = onLeftClickCompletion
+        self.onRightClickCompletion = onRightClickCompletion
     }
 
 }

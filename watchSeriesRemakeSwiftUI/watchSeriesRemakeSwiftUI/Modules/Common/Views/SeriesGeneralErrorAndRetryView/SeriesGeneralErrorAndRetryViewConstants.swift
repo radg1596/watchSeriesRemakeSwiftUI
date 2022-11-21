@@ -8,9 +8,4 @@
 import Foundation
 
 final class SeriesGeneralErrorAndRetryViewConstants {
-
-    // MARK: - UI
-    let errorButtonPadding: CGFloat = 10.0
-    let errorButtonCornerRadius: CGFloat = 5.0
-
 }

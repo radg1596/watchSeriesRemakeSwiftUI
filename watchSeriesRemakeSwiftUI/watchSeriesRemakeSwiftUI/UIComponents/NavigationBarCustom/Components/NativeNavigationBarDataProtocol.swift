@@ -9,6 +9,7 @@ import SwiftUI
 
 protocol NativeNavigationBarDataProtocol: AnyObject {
     var title: String { get set }
+    var isTranslucent: Bool { get set }
     var backgroundColor: Color { get set }
     var foregroundColor: Color { get set }
     var leftBarButton: NativeNavigationBarButtonType? { get set }

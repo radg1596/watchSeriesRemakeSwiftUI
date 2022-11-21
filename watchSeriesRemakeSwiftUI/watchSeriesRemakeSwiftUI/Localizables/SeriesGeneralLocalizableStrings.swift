@@ -21,4 +21,11 @@ enum SeriesGeneralLocalizableStrings: String, EnumStringLocalizable {
     case generalButtonTextCancel = "general_button_cancel_text"
     case generalButtonTextRetry = "general_button_cancel_retry"
 
+    // MARK: - GENERAL TEXT
+    case generalTextPageDescription = "general_text_page_description"
+    case generalTextPageSeparator = "general_text_page_separator"
+    case generalTextMyList = "general_text_my_list"
+    case generalTextPlayText = "general_text_play_text"
+    case generalTextInfoText = "general_text_info_text"
+
 }

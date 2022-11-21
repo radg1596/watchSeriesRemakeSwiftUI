@@ -59,10 +59,7 @@ struct SeriesGeneralErrorAndRetryView: View {
                     self.errorRetryButtonAction?()
                 }
             }
-            .foregroundColor(Color.principalBackgroundColor)
-            .padding(constants.errorButtonPadding)
-            .background(Color.skeletonViewProgressColorOne)
-            .clipShape(RoundedRectangle(cornerRadius: constants.errorButtonCornerRadius))
+            .buttonStyle(.actionStyle)
         }
     }
 

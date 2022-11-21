@@ -10,15 +10,21 @@ import Combine
 
 extension SeriesPrincipalLandingView {
 
-    @MainActor class ViewModel: ObservableObject {
+    @MainActor class ViewModel<LandingFactoryType: SeriesPrincipalLandingFactoryProtocol>: ObservableObject {
 
         // MARK: - OWN PROPERTIES
         private let seriesDataSource: SerieSectionsInformationDataSource
         private let connectionChecker: InternetConnectionCheckeable
+        private let cardsFactoryInternal: LandingFactoryType
         private var cancelablesItems = Set<AnyCancellable>()
 
+        // MARK: - FACTORY ACCESS
+        var cardsFactory: some SeriesPrincipalLandingFactoryProtocol {
+            return cardsFactoryInternal
+        }
+
         // MARK: - PROPERTIES FOR PUBLISH
-        @Published private(set) var seriesSections: [SerieInformationSectionDTO] = [SerieInformationSectionDTO]()
+        @Published var seriesSections: [SeriesLandingItemProtocol] = []
         @Published var isShowingNoInternetConnectionModal: Bool = false
         @Published var isShowingLoadingContentErrorView: Bool = false
         @Published var isLoadingInitialContent: Bool = true
@@ -26,9 +32,11 @@ extension SeriesPrincipalLandingView {
     
         // MARK: - INIT
         init(seriesDataSource: SerieSectionsInformationDataSource = SerieSectionsInformationUseCase(),
-             connectionChecker: InternetConnectionCheckeable = InternetConnectionCheckerManager()) {
+             connectionChecker: InternetConnectionCheckeable = InternetConnectionCheckerManager(),
+             cardsFactoryInternal: LandingFactoryType = SeriesPrincipalLandingFactory()) {
             self.seriesDataSource = seriesDataSource
             self.connectionChecker = connectionChecker
+            self.cardsFactoryInternal = cardsFactoryInternal
         }
     
         // MARK: - METHODS
@@ -50,7 +58,7 @@ extension SeriesPrincipalLandingView {
                 }
                 .store(in: &cancelablesItems)
         }
-    
+
         func handleErrorRetryAction() {
             connectionChecker.networkCheckerPublisher()
                 .sink { [weak self] isAvailable in

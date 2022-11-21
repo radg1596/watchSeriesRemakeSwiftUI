@@ -10,7 +10,7 @@ import Foundation
 class SerieInformationItemDTO: Identifiable {
 
     // MARK: - PROPERTIES
-    let id: Int
+    var id: String
     let name: String
     let url: String
     let image: SerieInformationItemImagesDTO
@@ -18,7 +18,7 @@ class SerieInformationItemDTO: Identifiable {
 
     // MARK: - INIT
     init(from dbo: GetAllSeriesServiceResponseItem) {
-        self.id = dbo.id
+        self.id = "\(dbo.id)"
         self.name = dbo.name
         self.url = dbo.url
         self.image = SerieInformationItemImagesDTO(medium: dbo.image?.medium,
@@ -29,11 +29,19 @@ class SerieInformationItemDTO: Identifiable {
     init(id: Int, name: String, url: String,
          image: SerieInformationItemImagesDTO,
          genres: [SerieInformationItemGenreDTO]) {
-        self.id = id
+        self.id = "\(id)"
         self.name = name
         self.url = url
         self.image = image
         self.genres = genres
+    }
+
+    // MARK: - PROPERTIES
+    var genresDescription: String {
+        let finalSubstring = genres.reduce(String()) { partialResult, newGenre in
+            partialResult + "\(newGenre.rawValue.capitalized) · "
+        }.dropLast().dropLast()
+        return String(finalSubstring)
     }
 
 }
