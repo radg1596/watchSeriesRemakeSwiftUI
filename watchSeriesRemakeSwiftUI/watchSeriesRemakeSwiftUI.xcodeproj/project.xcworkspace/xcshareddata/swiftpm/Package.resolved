@@ -8,6 +8,15 @@
         "revision" : "8dd85aee02e39dd280c75eef88ffdb86eed4b07b",
         "version" : "5.6.2"
       }
+    },
+    {
+      "identity" : "genericwebserviceslayer",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/radg1596/GenericWebServicesLayer.git",
+      "state" : {
+        "branch" : "main",
+        "revision" : "7a7fe8d51fca5b3be6e89828d2128f95cfd0f44e"
+      }
     }
   ],
   "version" : 2
